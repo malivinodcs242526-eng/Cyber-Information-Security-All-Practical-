@@ -1,0 +1,151 @@
+CLI 
+import hmac
+import hashlib
+
+msg = input("Enter the message: ")
+key = input("Enter the secret key: ")
+
+# Generate MAC
+mac = hmac.new(key.encode(), msg.encode(), hashlib.sha256).hexdigest()
+
+print("\nMessage:", msg)
+print("Generated MAC:", mac)
+
+# Verify MAC
+verify = input("\nEnter the message to verify: ")
+
+if hmac.compare_digest(mac, hmac.new(key.encode(), verify.encode(), hashlib.sha256).hexdigest()):
+    print("MAC Verification Successful: Message is authentic.")
+else:
+    print("MAC Verification Failed: Message has been altered.")
+
+
+
+
+
+GUI 
+import tkinter as tk
+from tkinter import messagebox
+import hmac
+import hashlib
+
+
+def generate_mac():
+    msg = message_entry.get("1.0", tk.END).strip()
+    key = key_entry.get()
+
+    if not msg or not key:
+        messagebox.showerror("Error", "Enter both Message and Secret Key!")
+        return
+
+    mac = hmac.new(key.encode(), msg.encode(), hashlib.sha256).hexdigest()
+
+    output.config(state="normal")
+    output.delete("1.0", tk.END)
+    output.insert(tk.END, f"Message:\n{msg}\n\n")
+    output.insert(tk.END, f"Generated MAC:\n{mac}")
+    output.config(state="disabled")
+
+
+def verify_mac():
+    msg = message_entry.get("1.0", tk.END).strip()
+    key = key_entry.get()
+    verify = verify_entry.get("1.0", tk.END).strip()
+
+    if not msg or not key or not verify:
+        messagebox.showerror("Error", "Fill all fields!")
+        return
+
+    mac = hmac.new(key.encode(), msg.encode(), hashlib.sha256).hexdigest()
+    verify_mac = hmac.new(key.encode(), verify.encode(), hashlib.sha256).hexdigest()
+
+    if hmac.compare_digest(mac, verify_mac):
+        result.config(text="✔ MAC Verification Successful!\nMessage is Authentic.",
+                      fg="#00FF00")
+    else:
+        result.config(text="✖ MAC Verification Failed!\nMessage has been Altered.",
+                      fg="red")
+
+
+
+root = tk.Tk()
+root.title("Hacker MAC Generator & Verifier")
+root.geometry("700x650")
+root.configure(bg="black")
+
+title = tk.Label(root,
+                 text="MESSAGE AUTHENTICATION CODE (MAC)",
+                 bg="black",
+                 fg="#00FF00",
+                 font=("Consolas", 18, "bold"))
+title.pack(pady=10)
+
+
+tk.Label(root, text="Enter Message:",
+         bg="black", fg="#00FF00",
+         font=("Consolas", 12)).pack()
+
+message_entry = tk.Text(root, height=5, width=70,
+                        bg="#101010", fg="#00FF00",
+                        insertbackground="#00FF00",
+                        font=("Consolas", 11))
+message_entry.pack(pady=5)
+
+
+tk.Label(root, text="Enter Secret Key:",
+         bg="black", fg="#00FF00",
+         font=("Consolas", 12)).pack()
+
+key_entry = tk.Entry(root, width=50,
+                     bg="#101010", fg="#00FF00",
+                     insertbackground="#00FF00",
+                     font=("Consolas", 11))
+key_entry.pack(pady=5)
+
+
+btn_frame = tk.Frame(root, bg="black")
+btn_frame.pack(pady=10)
+
+tk.Button(btn_frame, text="Generate MAC",
+          command=generate_mac,
+          bg="#00AA00", fg="black",
+          font=("Consolas", 11, "bold"),
+          width=18).grid(row=0, column=0, padx=10)
+
+tk.Button(btn_frame, text="Verify MAC",
+          command=verify_mac,
+          bg="#00AA00", fg="black",
+          font=("Consolas", 11, "bold"),
+          width=18).grid(row=0, column=1, padx=10)
+
+
+tk.Label(root, text="Generated MAC:",
+         bg="black", fg="#00FF00",
+         font=("Consolas", 12)).pack()
+
+output = tk.Text(root, height=8, width=70,
+                 bg="#101010", fg="#00FF00",
+                 font=("Consolas", 10))
+output.pack(pady=5)
+output.config(state="disabled")
+
+
+tk.Label(root, text="Enter Message to Verify:",
+         bg="black", fg="#00FF00",
+         font=("Consolas", 12)).pack()
+
+verify_entry = tk.Text(root, height=5, width=70,
+                       bg="#101010", fg="#00FF00",
+                       insertbackground="#00FF00",
+                       font=("Consolas", 11))
+verify_entry.pack(pady=5)
+
+
+result = tk.Label(root,
+                  text="",
+                  bg="black",
+                  fg="#00FF00",
+                  font=("Consolas", 13, "bold"))
+result.pack(pady=15)
+
+root.mainloop()
